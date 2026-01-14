@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Filter App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            color: #1a1a2e;
+            margin-bottom: 8px;
+        }
+
+        .header .highlight {
+            background: linear-gradient(120deg, #42a5f5 0%, #1976d2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .upload-section {
+            margin-bottom: 30px;
+        }
+
+        .upload-section label {
+            display: block;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 50px 20px;
+            background: #f9fafb;
+            border: 2px dashed #d1d5db;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .file-input-label:hover {
+            border-color: #667eea;
+            background: #f5f7ff;
+        }
+
+        .file-input-label .icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .file-input-label .text {
+            color: #6b7280;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .file-name {
+            margin-top: 12px;
+            color: #667eea;
+            font-weight: 500;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .filter-section {
+            margin-bottom: 30px;
+        }
+
+        .filter-section label {
+            display: block;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .filter-option {
+            position: relative;
+        }
+
+        .filter-option input {
+            display: none;
+        }
+
+        .filter-label {
+            display: block;
+            padding: 12px;
+            background: #f9fafb;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 13px;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .filter-option input:checked + .filter-label {
+            background: #667eea;
+            border-color: #667eea;
+            color: white;
+        }
+
+        .filter-label:hover {
+            border-color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            background: #d1d5db;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        @media (max-width: 640px) {
+            .filter-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎨 Image <span class="highlight">Filter App</span></h1>
+            <p>Upload an image and apply amazing filters</p>
+        </div>
+
+        <form action="/upload" method="POST" enctype="multipart/form-data" id="uploadForm">
+            <!-- Upload Section -->
+            <div class="upload-section">
+                <label>Upload Image</label>
+                <div class="file-input-wrapper">
+                    <label class="file-input-label" for="imageFile">
+                        <div class="icon">📸</div>
+                        <div class="text">Click to upload or drag and drop</div>
+                    </label>
+                    <input type="file" id="imageFile" name="image" accept="image/*" required>
+                    <div class="file-name" id="fileName"></div>
+                </div>
+            </div>
+
+            <!-- Filter Section -->
+            <div class="filter-section">
+                <label>Select Filter</label>
+                <div class="filter-grid">
+                    <div class="filter-option">
+                        <input type="radio" name="filter" value="original" id="original" checked>
+                        <label for="original" class="filter-label">Original</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="radio" name="filter" value="grayscale" id="grayscale">
+                        <label for="grayscale" class="filter-label">Grayscale</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="radio" name="filter" value="negative" id="negative">
+                        <label for="negative" class="filter-label">Negative</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="radio" name="filter" value="blur" id="blur">
+                        <label for="blur" class="filter-label">Blur</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="radio" name="filter" value="sharpen" id="sharpen">
+                        <label for="sharpen" class="filter-label">Sharpen</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="radio" name="filter" value="edge" id="edge">
+                        <label for="edge" class="filter-label">Edge</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="radio" name="filter" value="sepia" id="sepia">
+                        <label for="sepia" class="filter-label">Sepia</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="radio" name="filter" value="cartoon" id="cartoon">
+                        <label for="cartoon" class="filter-label">Cartoon</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="radio" name="filter" value="sketch" id="sketch">
+                        <label for="sketch" class="filter-label">Sketch</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="radio" name="filter" value="emboss" id="emboss">
+                        <label for="emboss" class="filter-label">Emboss</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="radio" name="filter" value="brightness" id="brightness">
+                        <label for="brightness" class="filter-label">Brighten</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="radio" name="filter" value="contrast" id="contrast">
+                        <label for="contrast" class="filter-label">Contrast</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="radio" name="filter" value="mirror" id="mirror">
+                        <label for="mirror" class="filter-label">Mirror</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="radio" name="filter" value="rotate" id="rotate">
+                        <label for="rotate" class="filter-label">Rotate</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="radio" name="filter" value="pixelate" id="pixelate">
+                        <label for="pixelate" class="filter-label">Pixelate</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="radio" name="filter" value="vignette" id="vignette">
+                        <label for="vignette" class="filter-label">Vignette</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="radio" name="filter" value="bw" id="bw">
+                        <label for="bw" class="filter-label">B&W</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="radio" name="filter" value="red" id="red">
+                        <label for="red" class="filter-label">Red Only</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="radio" name="filter" value="green" id="green">
+                        <label for="green" class="filter-label">Green Only</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="radio" name="filter" value="blue" id="blue">
+                        <label for="blue" class="filter-label">Blue Only</label>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn">Apply Filter ✨</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('imageFile').addEventListener('change', function(e) {
+            const fileName = e.target.files[0]?.name || '';
+            document.getElementById('fileName').textContent = fileName ? `✓ ${fileName}` : '';
+        });
+    </script>
+</body>
+</html>
