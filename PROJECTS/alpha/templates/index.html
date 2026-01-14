@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASL Recognition - Numbers & Alphabets</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 48px;
+            color: #1a1a2e;
+            margin-bottom: 12px;
+            font-weight: 800;
+        }
+
+        .header .highlight {
+            background: linear-gradient(120deg, #42a5f5 0%, #1976d2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            color: #6b7280;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .badges {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 16px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 8px 16px;
+            background: rgba(66, 165, 245, 0.15);
+            border-radius: 20px;
+            color: #1976d2;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        /* Main Grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        /* Video Card */
+        .video-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .video-header {
+            padding: 20px 24px;
+            background: #f9fafb;
+            border-bottom: 1px solid #e8eaf0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .video-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a2e;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.1); }
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 4/3;
+            background: #000;
+        }
+
+        .video-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Info Panel */
+        .info-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .card h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a2e;
+            margin-bottom: 16px;
+        }
+
+        /* Current Sign Display */
+        .sign-display {
+            background: linear-gradient(135deg, #42a5f5 0%, #1976d2 100%);
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .sign-display .label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.9);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .sign-display .sign-text {
+            font-size: 32px;
+            color: white;
+            font-weight: 700;
+            min-height: 40px;
+        }
+
+        /* Text Output */
+        .text-output {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 12px;
+            min-height: 100px;
+            margin-bottom: 12px;
+        }
+
+        .text-output .label {
+            font-size: 12px;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .text-output .text-content {
+            font-size: 18px;
+            color: #1a1a2e;
+            font-weight: 600;
+            line-height: 1.6;
+            min-height: 50px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
+        }
+
+        /* Reference Cards */
+        .reference-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .reference-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .reference-card h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a2e;
+            margin-bottom: 16px;
+        }
+
+        .sign-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+
+        .sign-item {
+            padding: 12px 8px;
+            background: #f9fafb;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            color: #374151;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .sign-item:hover {
+            border-color: #42a5f5;
+            background: #e3f2fd;
+            transform: scale(1.05);
+        }
+
+        .sign-item .number {
+            font-size: 20px;
+            color: #1976d2;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .letter-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 8px;
+        }
+
+        .instructions {
+            background: #f0f9ff;
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #42a5f5;
+        }
+
+        .instructions h4 {
+            font-size: 14px;
+            color: #1976d2;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .instructions ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .instructions li {
+            padding: 6px 0;
+            color: #6b7280;
+            font-size: 13px;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .instructions li::before {
+            content: "✓";
+            color: #10b981;
+            font-weight: 700;
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .reference-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 36px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .sign-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .letter-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🤟 ASL <span class="highlight">Recognition</span></h1>
+            <p>Real-time American Sign Language detection for Numbers (0-9) and Alphabets<br>Show hand signs and get instant text + audio output</p>
+            <div class="badges">
+                <span class="badge">🔊 Audio Enabled</span>
+                <span class="badge">📹 Live Detection</span>
+                <span class="badge">✍️ Text Output</span>
+            </div>
+        </div>
+
+        <!-- Main Grid -->
+        <div class="main-grid">
+            <!-- Video Feed -->
+            <div class="video-card">
+                <div class="video-header">
+                    <h2>📹 Live Camera Feed</h2>
+                    <div class="status">
+                        <span class="status-dot"></span>
+                        <span>Live</span>
+                    </div>
+                </div>
+                <div class="video-container">
+                    <img src="{{ url_for('video_feed') }}" alt="Live Feed">
+                </div>
+            </div>
+
+            <!-- Info Panel -->
+            <div class="info-panel">
+                <!-- Current Sign -->
+                <div class="card">
+                    <h3>🎯 Current Detection</h3>
+                    <div class="sign-display">
+                        <div class="label">Recognized Sign</div>
+                        <div class="sign-text" id="currentSign">Waiting...</div>
+                    </div>
+                    
+                    <div class="instructions">
+                        <h4>📋 How to Use</h4>
+                        <ul>
+                            <li>Allow camera access when prompted</li>
+                            <li>Show your hand clearly to camera</li>
+                            <li>Make a number (0-9) or letter sign</li>
+                            <li>Listen to the audio output</li>
+                            <li>Watch text appear below!</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Text Output -->
+                <div class="card">
+                    <h3>✍️ Recognized Text</h3>
+                    <div class="text-output">
+                        <div class="label">Output</div>
+                        <div class="text-content" id="recognizedText">No text yet...</div>
+                    </div>
+                    <button class="btn btn-primary" onclick="clearText()">🗑️ Clear Text</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reference Cards -->
+        <div class="reference-grid">
+            <!-- Numbers -->
+            <div class="reference-card">
+                <h3>🔢 Numbers (0-9)</h3>
+                <div class="sign-grid">
+                    <div class="sign-item">
+                        <span class="number">0</span>
+                        Zero
+                    </div>
+                    <div class="sign-item">
+                        <span class="number">1</span>
+                        One
+                    </div>
+                    <div class="sign-item">
+                        <span class="number">2</span>
+                        Two
+                    </div>
+                    <div class="sign-item">
+                        <span class="number">3</span>
+                        Three
+                    </div>
+                    <div class="sign-item">
+                        <span class="number">4</span>
+                        Four
+                    </div>
+                    <div class="sign-item">
+                        <span class="number">5</span>
+                        Five
+                    </div>
+                    <div class="sign-item">
+                        <span class="number">6</span>
+                        Six
+                    </div>
+                    <div class="sign-item">
+                        <span class="number">7</span>
+                        Seven
+                    </div>
+                    <div class="sign-item">
+                        <span class="number">8</span>
+                        Eight
+                    </div>
+                    <div class="sign-item">
+                        <span class="number">9</span>
+                        Nine
+                    </div>
+                </div>
+            </div>
+
+            <!-- Letters -->
+            <div class="reference-card">
+                <h3>🔤 Letters (Sample)</h3>
+                <div class="letter-grid">
+                    <div class="sign-item">
+                        <span class="number">A</span>
+                        Letter A
+                    </div>
+                    <div class="sign-item">
+                        <span class="number">B</span>
+                        Letter B
+                    </div>
+                    <div class="sign-item">
+                        <span class="number">C</span>
+                        Letter C
+                    </div>
+                    <div class="sign-item">
+                        <span class="number">D</span>
+                        Letter D
+                    </div>
+                    <div class="sign-item">
+                        <span class="number">L</span>
+                        Letter L
+                    </div>
+                    <div class="sign-item">
+                        <span class="number">O</span>
+                        Letter O
+                    </div>
+                    <div class="sign-item">
+                        <span class="number">V</span>
+                        Letter V
+                    </div>
+                    <div class="sign-item">
+                        <span class="number">Y</span>
+                        Letter Y
+                    </div>
+                    <div class="sign-item">
+                        <span class="number">👍</span>
+                        Thumbs
+                    </div>
+                    <div class="sign-item">
+                        <span class="number">👌</span>
+                        OK
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Update current sign and text every 500ms
+        setInterval(() => {
+            fetch('/get_sign')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('currentSign').textContent = data.sign || 'Waiting...';
+                    
+                    const textContent = document.getElementById('recognizedText');
+                    if (data.text && data.text.trim() !== '') {
+                        textContent.textContent = data.text;
+                    } else {
+                        textContent.textContent = 'No text yet...';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching sign:', error);
+                });
+        }, 500);
+
+        // Clear text function
+        function clearText() {
+            fetch('/clear_text', {
+                method: 'POST'
+            })
+            .then(() => {
+                document.getElementById('recognizedText').textContent = 'No text yet...';
+            });
+        }
+    </script>
+</body>
+</html>
