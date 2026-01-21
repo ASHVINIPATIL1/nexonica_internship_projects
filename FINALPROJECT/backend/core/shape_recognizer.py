@@ -29,23 +29,24 @@ class ShapeRecognizer:
             return None
         
         # Try to recognize different shapes in order of specificity
+        # Check line FIRST (most distinctive - low variance in one direction)
         
-        # 1. Try Circle (most distinctive)
-        circle = self._detect_circle(points)
-        if circle:
-            return circle
-        
-        # 2. Try Line (second most distinctive)
+        # 1. Try Line (check first - very distinctive)
         line = self._detect_line(points)
         if line:
             return line
+        
+        # 2. Try Circle (second - needs consistent radius)
+        circle = self._detect_circle(points)
+        if circle:
+            return circle
         
         # 3. Try Arrow (before polygons)
         arrow = self._detect_arrow(points)
         if arrow:
             return arrow
         
-        # 4. Try Polygons (Rectangle, Square, Triangle)
+        # 4. Try Polygons last (Rectangle, Square, Triangle)
         polygon = self._detect_polygon(points)
         if polygon:
             return polygon
@@ -60,8 +61,19 @@ class ShapeRecognizer:
         Algorithm:
         - Calculate center point (mean of all points)
         - Calculate distance of each point from center
+        - Check if start and end points are close (closed loop)
         - If standard deviation of distances is low, it's a circle
         """
+        # Check if path is closed (start and end points close together)
+        start_point = points[0]
+        end_point = points[-1]
+        closure_distance = np.linalg.norm(start_point - end_point)
+        
+        # If not closed, probably not a circle
+        avg_point_distance = np.linalg.norm(points[1:] - points[:-1], axis=1).mean()
+        if closure_distance > avg_point_distance * 5:  # Not closed
+            return None
+        
         # Calculate center
         center = points.mean(axis=0).astype(int)
         center_x, center_y = center[0], center[1]
@@ -186,12 +198,71 @@ class ShapeRecognizer:
         """
         Detect arrow shape
         
-        Simplified detection:
-        - Check if roughly linear with deviation at one end
-        - More complex arrow detection can be added later
+        Better approach:
+        - Arrow = straight line + V-shape at one end
+        - Check if points form mostly straight path with deviation at end
         """
-        # For now, return None (arrow detection is complex)
-        # Can be implemented as: line + triangle at end
+        if len(points) < 20:  # Need enough points
+            return None
+        
+        # First check if it's reasonably linear overall
+        x = points[:, 0]
+        y = points[:, 1]
+        
+        try:
+            # Fit line to all points
+            slope, intercept = np.polyfit(x, y, 1)
+            predicted_y = slope * x + intercept
+            overall_error = np.abs(y - predicted_y).mean()
+            
+            # If not reasonably linear, not an arrow
+            if overall_error > 40:  # Too curved
+                return None
+            
+            # Now check each end separately
+            # Split into three sections: start 30%, middle 40%, end 30%
+            third = len(points) // 3
+            start_section = points[:third]
+            end_section = points[-third:]
+            
+            # Check straightness of each end
+            def check_straightness(section):
+                if len(section) < 3:
+                    return 999
+                sx = section[:, 0]
+                sy = section[:, 1]
+                try:
+                    s_slope, s_intercept = np.polyfit(sx, sy, 1)
+                    s_predicted = s_slope * sx + s_intercept
+                    return np.abs(sy - s_predicted).mean()
+                except:
+                    return 999
+            
+            start_error = check_straightness(start_section)
+            end_error = check_straightness(end_section)
+            
+            # If one end is significantly less straight (has the arrow head)
+            if start_error > end_error * 1.5 and start_error > 15:
+                # Arrow head at start
+                print(f"✅ Detected ARROW - head at START")
+                return {
+                    'type': 'arrow',
+                    'tail': tuple(points[-1].astype(int)),
+                    'head': tuple(points[0].astype(int)),
+                    'points': points
+                }
+            elif end_error > start_error * 1.5 and end_error > 15:
+                # Arrow head at end
+                print(f"✅ Detected ARROW - head at END")
+                return {
+                    'type': 'arrow',
+                    'tail': tuple(points[0].astype(int)),
+                    'head': tuple(points[-1].astype(int)),
+                    'points': points
+                }
+        except:
+            pass
+        
         return None
     
     def draw_perfect_shape(self, canvas: np.ndarray, shape_info: Dict, color: Tuple[int, int, int], thickness: int):
@@ -235,8 +306,40 @@ class ShapeRecognizer:
             )
         
         elif shape_type == 'arrow':
-            # Arrow drawing logic (to be implemented)
-            pass
+            # Draw arrow shaft (line)
+            cv2.line(
+                canvas,
+                shape_info['tail'],
+                shape_info['head'],
+                color,
+                thickness
+            )
+            
+            # Draw arrow head (simple triangle)
+            # Calculate arrow head points
+            tail = np.array(shape_info['tail'])
+            head = np.array(shape_info['head'])
+            
+            # Direction vector
+            direction = head - tail
+            length = np.linalg.norm(direction)
+            if length > 0:
+                direction = direction / length
+                
+                # Perpendicular vector
+                perp = np.array([-direction[1], direction[0]])
+                
+                # Arrow head size (proportional to thickness)
+                head_length = thickness * 3
+                head_width = thickness * 2
+                
+                # Calculate arrow head points
+                p1 = head - direction * head_length + perp * head_width
+                p2 = head - direction * head_length - perp * head_width
+                
+                # Draw filled arrow head
+                triangle = np.array([head, p1, p2], dtype=np.int32)
+                cv2.fillPoly(canvas, [triangle], color)
     
     def get_shape_bounding_box(self, points: np.ndarray) -> Tuple[int, int, int, int]:
         """

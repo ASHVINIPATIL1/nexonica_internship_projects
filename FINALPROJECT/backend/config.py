@@ -45,7 +45,7 @@ COLOR_ORDER = ['red', 'blue', 'green', 'yellow', 'purple', 'white']
 # GESTURE SETTINGS
 # ============================================
 # Time to hold gesture before triggering (seconds)
-GESTURE_HOLD_TIME = 0.5
+GESTURE_HOLD_TIME = 1.5  # Hold for 1.5 seconds to prevent accidental triggers
 
 # Gesture definitions
 GESTURE_DRAW = 1        # 1 finger
@@ -61,13 +61,13 @@ GESTURE_PAUSE = 5       # 5 fingers (all)
 MIN_POINTS_FOR_SHAPE = 10  # Minimum points needed to recognize a shape
 
 # Circle detection
-CIRCLE_STD_THRESHOLD = 0.3  # 30% variance allowed
+CIRCLE_STD_THRESHOLD = 0.25  # Stricter: 25% variance allowed (was 30%)
 
 # Line detection
 LINE_ERROR_THRESHOLD = 20  # pixels
 
 # Polygon approximation
-POLYGON_EPSILON = 0.04  # Smaller = more accurate
+POLYGON_EPSILON = 0.03  # More accurate (was 0.04)
 
 # Square detection
 SQUARE_SIDE_VARIANCE = 0.2  # 20% variance allowed
