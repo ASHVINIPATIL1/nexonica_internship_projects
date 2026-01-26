@@ -24,7 +24,7 @@ BRUSH_THICKNESS_MIN = 2
 BRUSH_THICKNESS_MAX = 30
 BRUSH_THICKNESS_DEFAULT = 5
 
-ERASER_THICKNESS = 50
+ERASER_THICKNESS = 70
 
 # ============================================
 # COLOR PALETTE (BGR format for OpenCV)
@@ -81,7 +81,7 @@ MAX_HISTORY_SIZE = 10  # Store last 10 strokes
 # FILE EXPORT SETTINGS
 # ============================================
 EXPORT_FOLDER = "exports"  # Where to save PNG files
-EXPORT_FORMAT = "whiteboard_%Y-%m-%d_%H-%M-%S.png"
+EXPORT_FORMAT = "air-canvas_%Y-%m-%d_%H-%M-%S.png"
 
 # ============================================
 # UI SETTINGS

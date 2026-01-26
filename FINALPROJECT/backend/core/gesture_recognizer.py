@@ -16,6 +16,7 @@ class GestureRecognizer:
         self.last_gesture = None
         self.gesture_start_time = None
         self.gesture_confirmed = False
+        self.last_color_change_time = 0  # Cooldown for color changes
     
     def recognize_gesture(self, finger_count: int) -> dict:
         """
@@ -63,16 +64,22 @@ class GestureRecognizer:
         
         elif finger_count == config.GESTURE_NEXT_COLOR:  # 3 fingers
             if self.gesture_confirmed:
-                self._next_color()
-                result['action'] = 'next_color'
-                result['color_changed'] = True
+                # Check cooldown (prevent continuous changing)
+                if current_time - self.last_color_change_time > 2.0:  # 2 second cooldown
+                    self._next_color()
+                    result['action'] = 'next_color'
+                    result['color_changed'] = True
+                    self.last_color_change_time = current_time
                 self.gesture_confirmed = False  # Prevent continuous triggering
         
         elif finger_count == config.GESTURE_PREV_COLOR:  # 4 fingers
             if self.gesture_confirmed:
-                self._prev_color()
-                result['action'] = 'prev_color'
-                result['color_changed'] = True
+                # Check cooldown (prevent continuous changing)
+                if current_time - self.last_color_change_time > 2.0:  # 2 second cooldown
+                    self._prev_color()
+                    result['action'] = 'prev_color'
+                    result['color_changed'] = True
+                    self.last_color_change_time = current_time
                 self.gesture_confirmed = False
         
         elif finger_count == config.GESTURE_PAUSE:  # 5 fingers (palm)
